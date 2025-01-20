@@ -1,0 +1,60 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  deploy_to_ec2:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+
+      - name: Export OIDC Token
+        env:
+          BITBUCKET_STEP_OIDC_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
+          echo $BITBUCKET_STEP_OIDC_TOKEN > $AWS_WEB_IDENTITY_TOKEN_FILE
+          aws sts assume-role-with-web-identity \
+            --role-arn "${{ secrets.AWS_ROLE_ARN }}" \
+            --role-session-name github-actions-session \
+            --web-identity-token "$BITBUCKET_STEP_OIDC_TOKEN" \
+            --duration-seconds 1000 > /tmp/assumed_role
+
+      - name: Get Runner IP
+        id: get_ip
+        run: echo "runner_ip=$(curl -s ifconfig.me)" >> $GITHUB_ENV
+
+      - name: Authorize Security Group Ingress
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp --port 22 --cidr ${{ env.runner_ip }}/32
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            chmod +x /home/ubuntu/johnny5-fe-v2/deploy.sh
+            bash /home/ubuntu/johnny5-fe-v2/deploy.sh
+
+      - name: Revoke Security Group Ingress
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp --port 22 --cidr ${{ env.runner_ip }}/32
