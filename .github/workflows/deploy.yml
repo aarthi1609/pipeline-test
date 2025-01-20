@@ -19,6 +19,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
           aws-region: ap-south-1
+          audience: sts.amazonaws.com
 
       - name: Get Runner IP
         id: get_ip
