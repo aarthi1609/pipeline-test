@@ -50,8 +50,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            chmod +x /home/ubuntu/johnny5-fe-v2/deploy.sh
-            bash /home/ubuntu/johnny5-fe-v2/deploy.sh
+            chmod +x /home/ubuntu/pipline-test/deploy.sh
+            bash /home/ubuntu/pipline-test/deploy.sh
 
       - name: Revoke Security Group Ingress
         run: |
