@@ -17,20 +17,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::010928215705:role/github-role
           aws-region: ap-south-1
-
-      - name: Export OIDC Token
-        env:
-          BITBUCKET_STEP_OIDC_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
-          echo $BITBUCKET_STEP_OIDC_TOKEN > $AWS_WEB_IDENTITY_TOKEN_FILE
-          aws sts assume-role-with-web-identity \
-            --role-arn "${{ secrets.AWS_ROLE_ARN }}" \
-            --role-session-name github-actions-session \
-            --web-identity-token "$BITBUCKET_STEP_OIDC_TOKEN" \
-            --duration-seconds 1000 > /tmp/assumed_role
 
       - name: Get Runner IP
         id: get_ip
