@@ -51,20 +51,6 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Notify Slack on ECR Push Success
-        if: success()
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{
-            "text": "Build and push Docker image to ECR in dev is successful\n
-            Project: nomad\n
-            Environment: staging\n
-            Build Number: ${{ env.BUILD_NUMBER }}\n
-            Commit ID: ${{ env.COMMIT_ID }}\n
-            Commit Message: ${{ env.COMMIT_MESSAGE }}\n
-            Approver: ${{ env.APPROVER }}"
-          }' ${{ secrets.SLACK_WEBHOOK_URL }}
-
       - name: Update new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -82,16 +68,4 @@ jobs:
           cluster: ${{ secrets.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-      - name: Notify Slack on ECS Deploy Success
-        if: success()
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{
-            "text": "Deploy to ECS in dev is successful\n
-            Project: nomad\n
-            Environment: staging\n
-            Build Number: ${{ env.BUILD_NUMBER }}\n
-            Commit ID: ${{ env.COMMIT_ID }}\n
-            Commit Message: ${{ env.COMMIT_MESSAGE }}\n
-            Approver: ${{ env.APPROVER }}"
-          }' ${{ secrets.SLACK_WEBHOOK_URL }}
+  
