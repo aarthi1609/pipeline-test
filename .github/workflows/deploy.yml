@@ -1,19 +1,19 @@
-name: Deploy to EC2
+name: Deploy to ECS
 
 on:
   push:
     branches:
       - main  # Trigger on pushes to the main branch
 
+
 permissions:
   id-token: write   
   contents: read  
 
 jobs:
-  deploy_to_ec2:
-    name: Deploy to EC2
+  deploy_to_ecs:
+    name: Deploy to ECS
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,29 +26,33 @@ jobs:
           audience: sts.amazonaws.com
           role-session-name: samplerolesession
 
-      - name: Get Runner IP
-        id: get_ip
-        run: echo "runner_ip=$(curl -s ifconfig.me)" >> $GITHUB_ENV
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Authorize Security Group Ingress
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws ec2 authorize-security-group-ingress \
-            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
-            --protocol tcp --port 22 --cidr ${{ env.runner_ip }}/32
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          host: ${{ secrets.SERVER }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            chmod +x /home/ubuntu/pipeline-test/deploy.sh
-            bash /home/ubuntu/pipeline-test/deploy.sh
+          task-definition: ./task-definition.json  
+          container-name: ${{ secrets.CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
-      - name: Revoke Security Group Ingress
-        run: |
-          aws ec2 revoke-security-group-ingress \
-            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
-            --protocol tcp --port 22 --cidr ${{ env.runner_ip }}/32
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
