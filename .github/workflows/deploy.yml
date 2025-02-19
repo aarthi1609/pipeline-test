@@ -3,8 +3,7 @@ name: Deploy to ECS
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
-
+      - main
 
 permissions:
   id-token: write   
@@ -17,6 +16,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Get Commit Details
+        id: commit_info
+        run: |
+          echo "COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%s)" >> $GITHUB_ENV
+          echo "APPROVER=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
 
       - name: Secret Scanner
         uses: secret-scanner/action@0.0.2
@@ -44,6 +51,20 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+      - name: Notify Slack on ECR Push Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{
+            "text": "Build and push Docker image to ECR in dev is successful\n
+            Project: nomad\n
+            Environment: staging\n
+            Build Number: ${{ env.BUILD_NUMBER }}\n
+            Commit ID: ${{ env.COMMIT_ID }}\n
+            Commit Message: ${{ env.COMMIT_MESSAGE }}\n
+            Approver: ${{ env.APPROVER }}"
+          }' ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: Update new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -53,9 +74,24 @@ jobs:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
 
       - name: Deploy to Amazon ECS 
+        id: ecs-deploy
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ secrets.ECS_SERVICE }}
           cluster: ${{ secrets.ECS_CLUSTER }}
           wait-for-service-stability: true
+
+      - name: Notify Slack on ECS Deploy Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{
+            "text": "Deploy to ECS in dev is successful\n
+            Project: nomad\n
+            Environment: staging\n
+            Build Number: ${{ env.BUILD_NUMBER }}\n
+            Commit ID: ${{ env.COMMIT_ID }}\n
+            Commit Message: ${{ env.COMMIT_MESSAGE }}\n
+            Approver: ${{ env.APPROVER }}"
+          }' ${{ secrets.SLACK_WEBHOOK_URL }}
