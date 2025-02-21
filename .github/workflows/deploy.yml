@@ -63,7 +63,8 @@ jobs:
 
       - name: Add secrets to Task Definition
         run: |
-          sed -i "s/<PORT>/$PORT/g" task-definition.json 
+          envsubst < task-definition.json > task-definition-updated.json
+          mv task-definition-updated.json task-definition.json
         env:
           PORT: ${{secrets.PORT}}
 
