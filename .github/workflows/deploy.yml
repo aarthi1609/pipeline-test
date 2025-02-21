@@ -17,12 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up QEMU for Multi-Arch Builds
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Get Commit Details
         id: commit_info
         run: |
@@ -32,7 +26,9 @@ jobs:
           echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
 
       - name: Secret Scanner
+        id: secret-scan
         uses: secret-scanner/action@0.0.2
+        continue-on-error: false 
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -54,10 +50,8 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push .
-
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Update new image ID in the Amazon ECS task definition
         id: task-def
@@ -67,6 +61,12 @@ jobs:
           container-name: ${{ secrets.CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
 
+      - name: Add secrets to Task Definition
+        run: |
+          sed -i "s/<PORT>/$PORT/g" task-definition.json 
+        env:
+          PORT: ${{secrets.PORT}}
+
       - name: Deploy to Amazon ECS 
         id: ecs-deploy
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -75,6 +75,7 @@ jobs:
           service: ${{ secrets.ECS_SERVICE }}
           cluster: ${{ secrets.ECS_CLUSTER }}
           wait-for-service-stability: true
+
 
 
   
