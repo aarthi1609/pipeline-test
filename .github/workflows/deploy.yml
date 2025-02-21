@@ -65,8 +65,19 @@ jobs:
           envsubst < task-definition.json > task-definition-updated.json
           mv task-definition-updated.json task-definition.json
           cat task-definition.json
+          
         env:
-          PORT: ${{vars.PORT}}
+          PORT: ${{ vars.PORT }}
+          RACK_ENV: ${{ vars.RACK_ENV }}
+          RAILS_ENV: ${{ vars.RAILS_ENV }}
+          STAGING_DB_NAME: ${{ vars.STAGING_DB_NAME }}
+          REDIS_SIDEKIQ_DB: ${{ vars.REDIS_SIDEKIQ_DB }}
+          STAGING_DB_PASSWORD: ${{ vars.STAGING_DB_PASSWORD }}
+          STAGING_DB_USER: ${{ vars.STAGING_DB_USER }}
+          RAILS_SERVE_STATIC_FILES: ${{ vars.RAILS_SERVE_STATIC_FILES }}
+          RAILS_MASTER_KEY: ${{ vars.RAILS_MASTER_KEY }}
+          STAGING_DB_HOST: ${{ vars.STAGING_DB_HOST }}
+          REDIS_URL: ${{ vars.REDIS_URL }}
 
 
       - name: Deploy to Amazon ECS 
