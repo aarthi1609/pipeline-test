@@ -66,7 +66,7 @@ jobs:
           envsubst < task-definition.json > task-definition-updated.json
           mv task-definition-updated.json task-definition.json
         env:
-          PORT: ${{secrets.PORT}}
+          PORT: ${{env.PORT}}
 
       - name: Deploy to Amazon ECS 
         id: ecs-deploy
