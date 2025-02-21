@@ -20,7 +20,7 @@
             "environment": [
                 {
                     "name": "PORT",
-                    "value": "<port_value>"
+                    "value": "${PORT}"
                 }
             ],
             "environmentFiles": [],
