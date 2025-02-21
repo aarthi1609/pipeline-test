@@ -65,7 +65,7 @@ jobs:
           envsubst < task-definition.json > task-definition-updated.json
           mv task-definition-updated.json task-definition.json
           cat task-definition.json
-          
+
         env:
           PORT: ${{ vars.PORT }}
           RACK_ENV: ${{ vars.RACK_ENV }}
@@ -78,7 +78,6 @@ jobs:
           RAILS_MASTER_KEY: ${{ vars.RAILS_MASTER_KEY }}
           STAGING_DB_HOST: ${{ vars.STAGING_DB_HOST }}
           REDIS_URL: ${{ vars.REDIS_URL }}
-
 
       - name: Deploy to Amazon ECS 
         id: ecs-deploy
