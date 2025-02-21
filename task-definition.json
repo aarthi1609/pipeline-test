@@ -18,11 +18,51 @@
             ],
             "essential": true,
             "environment": [
-                {
-                    "name": "PORT",
-                    "value": "${PORT}"
-                }
-            ],
+            {
+                "name": "RACK_ENV",
+                "value": "${RACK_ENV}"
+            },
+            {
+                "name": "PORT",
+                "value": "${PORT}"
+            },
+            {
+                "name": "RAILS_ENV",
+                "value": "${RAILS_ENV}"
+            },
+            {
+                "name": "STAGING_DB_NAME",
+                "value": "${STAGING_DB_NAME}"
+            },
+            {
+                "name": "REDIS_SIDEKIQ_DB",
+                "value": "${REDIS_SIDEKIQ_DB}"
+            },
+            {
+                "name": "STAGING_DB_PASSWORD",
+                "value": "${STAGING_DB_PASSWORD}"
+            },
+            {
+                "name": "STAGING_DB_USER",
+                "value": "${STAGING_DB_USER}"
+            },
+            {
+                "name": "RAILS_SERVE_STATIC_FILES",
+                "value": "${RAILS_SERVE_STATIC_FILES}"
+            },
+            {
+                "name": "RAILS_MASTER_KEY",
+                "value": "${RAILS_MASTER_KEY}"
+            },
+            {
+                "name": "STAGING_DB_HOST",
+                "value": "${STAGING_DB_HOST}"
+            },
+            {
+                "name": "REDIS_URL",
+                "value": "${REDIS_URL}"
+            }
+        ],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
