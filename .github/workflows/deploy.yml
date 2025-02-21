@@ -53,32 +53,28 @@ jobs:
           docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Update new image ID in the Amazon ECS task definition
+      - name: Update new image ID and environment variables in Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ./task-definition.json  
           container-name: ${{ secrets.CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
-      - name: Add secrets to Task Definition
-        run: |
-          envsubst < task-definition.json > task-definition-updated.json
-          mv task-definition-updated.json task-definition.json
-          cat task-definition.json
+          environment-variables: |
+            PORT=${{ vars.PORT }}
+            RACK_ENV=${{ vars.RACK_ENV }}
+            RAILS_ENV=${{ vars.RAILS_ENV }}
+            STAGING_DB_NAME=${{ vars.STAGING_DB_NAME }}
+            REDIS_SIDEKIQ_DB=${{ vars.REDIS_SIDEKIQ_DB }}
+            STAGING_DB_PASSWORD=${{ vars.STAGING_DB_PASSWORD }}
+            STAGING_DB_USER=${{ vars.STAGING_DB_USER }}
+            RAILS_SERVE_STATIC_FILES=${{ vars.RAILS_SERVE_STATIC_FILES }}
+            RAILS_MASTER_KEY=${{ vars.RAILS_MASTER_KEY }}
+            STAGING_DB_HOST=${{ vars.STAGING_DB_HOST }}
+            REDIS_URL=${{ vars.REDIS_URL }}
 
-        env:
-          PORT: ${{ vars.PORT }}
-          RACK_ENV: ${{ vars.RACK_ENV }}
-          RAILS_ENV: ${{ vars.RAILS_ENV }}
-          STAGING_DB_NAME: ${{ vars.STAGING_DB_NAME }}
-          REDIS_SIDEKIQ_DB: ${{ vars.REDIS_SIDEKIQ_DB }}
-          STAGING_DB_PASSWORD: ${{ vars.STAGING_DB_PASSWORD }}
-          STAGING_DB_USER: ${{ vars.STAGING_DB_USER }}
-          RAILS_SERVE_STATIC_FILES: ${{ vars.RAILS_SERVE_STATIC_FILES }}
-          RAILS_MASTER_KEY: ${{ vars.RAILS_MASTER_KEY }}
-          STAGING_DB_HOST: ${{ vars.STAGING_DB_HOST }}
-          REDIS_URL: ${{ vars.REDIS_URL }}
-
+      - name: Debug Task Definition
+        run: cat task-definition.json
       - name: Deploy to Amazon ECS 
         id: ecs-deploy
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
