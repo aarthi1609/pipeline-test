@@ -60,11 +60,9 @@ jobs:
           task-definition: ./task-definition.json  
           container-name: ${{ secrets.CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
-
       - name: Add secrets to Task Definition
         run: |
-          export $(grep -v '^#' <(env) | xargs)
-          envsubst < task-definition.json > task-definition-updated.json
+          envsubst '$PORT $RACK_ENV $RAILS_ENV $STAGING_DB_NAME $STAGING_DB_PASSWORD $STAGING_DB_USER $STAGING_DB_HOST $RAILS_MASTER_KEY $REDIS_SIDEKIQ_DB $REDIS_URL $RAILS_SERVE_STATIC_FILES' < task-definition.json > task-definition-updated.json
           mv task-definition-updated.json task-definition.json
         env:
           PORT: ${{ vars.PORT }}
