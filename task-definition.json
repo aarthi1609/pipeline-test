@@ -4,7 +4,7 @@
         {
             "name": "pipeline-test-container",
             "image": "010928215705.dkr.ecr.ap-south-1.amazonaws.com/pipeline-test:1",
-            "cpu": 1024,
+            "cpu":800,
             "memory": 800,
             "memoryReservation": 800,
             "portMappings": [
@@ -93,10 +93,10 @@
     "requiresCompatibilities": [
         "EC2"
     ],
-    "cpu": "1024",
+    "cpu": "800",
     "memory": "800",
     "runtimePlatform": {
-        "cpuArchitecture": "ARM64",
+        "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
     "tags": []
