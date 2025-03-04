@@ -23,10 +23,8 @@
                     "value": "${PORT}"
                 }
             ],
-            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -42,6 +40,7 @@
             "systemControls": []
         }
     ],
+    "taskRoleArn": "arn:aws:iam::010928215705:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::010928215705:role/ecsTaskExecutionRole",
     "networkMode": "bridge",
     "volumes": [],
