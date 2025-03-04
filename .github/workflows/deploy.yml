@@ -24,6 +24,7 @@ jobs:
           echo "COMMIT_MESSAGE=$(git log -1 --pretty=%s)" >> $GITHUB_ENV
           echo "APPROVER=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
           echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          cat $GITHUB_ENV
 
       - name: Secret Scanner
         id: secret-scan
