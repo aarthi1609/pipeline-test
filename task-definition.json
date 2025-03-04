@@ -56,6 +56,5 @@
     "runtimePlatform": {
         "cpuArchitecture": "ARM64",
         "operatingSystemFamily": "LINUX"
-    },
-    "tags": []
+    }
 }
