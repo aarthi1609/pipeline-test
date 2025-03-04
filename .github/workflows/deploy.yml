@@ -60,22 +60,7 @@ jobs:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
           environment-variables: |
             PORT=${{ vars.PORT }}
-      
-      - name: Deploy to Amazon ECS 
-        id: ecs-deploy
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ secrets.ECS_SERVICE }}
-          cluster: ${{ secrets.ECS_CLUSTER }}
-          wait-for-service-stability: true
-          
-      - name: Force New Deployment
-        run: |
-            aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} \
-              --service ${{ secrets.ECS_SERVICE }} \
-              --force-new-deployment
-          
+            
 
       - name: Debug Task Definition
         run: cat task-definition.json
