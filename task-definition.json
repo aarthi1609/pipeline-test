@@ -1,12 +1,12 @@
 {
-    "family": "pipeline-test-tdf",
+    "family": "mako-tdf-test",
     "containerDefinitions": [
         {
-            "name": "pipeline-test-container",
-            "image": "010928215705.dkr.ecr.ap-south-1.amazonaws.com/pipeline-test:1",
-            "cpu":800,
-            "memory": 800,
-            "memoryReservation": 800,
+            "name": "pipeline-container",
+            "image": "010928215705.dkr.ecr.ap-south-1.amazonaws.com/mako-ecr-test:latest",
+            "cpu": 1536,
+            "memory": 1536,
+            "memoryReservation": 1536,
             "portMappings": [
                 {
                     "name": "container-port",
@@ -18,51 +18,11 @@
             ],
             "essential": true,
             "environment": [
-            {
-                "name": "RACK_ENV",
-                "value": "${RACK_ENV}"
-            },
-            {
-                "name": "PORT",
-                "value": "${PORT}"
-            },
-            {
-                "name": "RAILS_ENV",
-                "value": "${RAILS_ENV}"
-            },
-            {
-                "name": "STAGING_DB_NAME",
-                "value": "${STAGING_DB_NAME}"
-            },
-            {
-                "name": "REDIS_SIDEKIQ_DB",
-                "value": "${REDIS_SIDEKIQ_DB}"
-            },
-            {
-                "name": "STAGING_DB_PASSWORD",
-                "value": "${STAGING_DB_PASSWORD}"
-            },
-            {
-                "name": "STAGING_DB_USER",
-                "value": "${STAGING_DB_USER}"
-            },
-            {
-                "name": "RAILS_SERVE_STATIC_FILES",
-                "value": "${RAILS_SERVE_STATIC_FILES}"
-            },
-            {
-                "name": "RAILS_MASTER_KEY",
-                "value": "${RAILS_MASTER_KEY}"
-            },
-            {
-                "name": "STAGING_DB_HOST",
-                "value": "${STAGING_DB_HOST}"
-            },
-            {
-                "name": "REDIS_URL",
-                "value": "${REDIS_URL}"
-            }
-        ],
+                {
+                    "name": "PORT",
+                    "value": "${PORT}"
+                }
+            ],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
@@ -70,7 +30,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/pipeline-test-tdf",
+                    "awslogs-group": "/ecs/",
                     "mode": "non-blocking",
                     "awslogs-create-group": "true",
                     "max-buffer-size": "25m",
@@ -82,7 +42,6 @@
             "systemControls": []
         }
     ],
-    "taskRoleArn": "arn:aws:iam::010928215705:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::010928215705:role/ecsTaskExecutionRole",
     "networkMode": "bridge",
     "volumes": [],
@@ -93,10 +52,10 @@
     "requiresCompatibilities": [
         "EC2"
     ],
-    "cpu": "800",
-    "memory": "800",
+    "cpu": "1536",
+    "memory": "1536",
     "runtimePlatform": {
-        "cpuArchitecture": "X86_64",
+        "cpuArchitecture": "ARM64",
         "operatingSystemFamily": "LINUX"
     },
     "tags": []
