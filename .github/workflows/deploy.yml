@@ -25,6 +25,19 @@ jobs:
           echo "APPROVER=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
           echo "BUILD_NUMBER=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
           cat $GITHUB_ENV
+        
+      - name: Notify Slack on ECR Push Success
+        run: |
+            curl -X POST -H "Content-Type: application/json" \
+            --data "{
+              "text": "Build and push Docker image to ECR in staging is successful
+              Project: nomad
+              Environment: staging
+              Build Number: '${{ env.BUILD_NUMBER }}'
+              Commit ID: '${{ env.COMMIT_ID }}'
+              Commit Message: '${{ env.COMMIT_MESSAGE }}'
+              Approver: '${{ env.APPROVER }}'"
+              }" ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Secret Scanner
         id: secret-scan
