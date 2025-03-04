@@ -51,10 +51,9 @@ jobs:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
           environment-variables: |
             PORT=${{ vars.PORT }}
-            
-
-      - name: Debug Task Definition
-        run: cat task-definition.json
+      
+      - name: Debug Task Definition ARN
+        run: echo "New Task Definition ARN=${{ steps.task-def.outputs.task-definition }}"
 
       - name: Force New Deployment
         run: |
