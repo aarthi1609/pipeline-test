@@ -28,16 +28,16 @@ jobs:
         
       - name: Notify Slack on ECR Push Success
         run: |
-            curl -X POST -H "Content-Type: application/json" \
-            --data '{
-              "text": "Build and push Docker image to ECR in staging is successful
-              Project: nomad
-              Environment: staging
-              Build Number: '${{ env.BUILD_NUMBER }}'
-              Commit ID: '${{ env.COMMIT_ID }}'
-              Commit Message: '${{ env.COMMIT_MESSAGE }}'
-              Approver: '${{ env.APPROVER }}'"
-              }' ${{ secrets.SLACK_WEBHOOK_URL }}
+            curl -X POST -H "Content-Type: application/json" --data "{
+              \"text\": \"Build and push Docker image to ECR in staging is successful\n
+              Project: nomad\n
+              Environment: staging\n
+              Build Number: ${{ env.BUILD_NUMBER }}\n
+              Commit ID: ${{ env.COMMIT_ID }}\n
+              Commit Message: ${{ env.COMMIT_MESSAGE }}\n
+              Approver: ${{ env.APPROVER }}\"
+            }" ${{ secrets.SLACK_WEBHOOK_URL }}
+        
 
       - name: Secret Scanner
         id: secret-scan
