@@ -1,9 +1,9 @@
 {
-    "family": "mako-tdf-test",
+    "family": "pipeline-tdf",
     "containerDefinitions": [
         {
             "name": "pipeline-container",
-            "image": "010928215705.dkr.ecr.ap-south-1.amazonaws.com/mako-ecr-test:latest",
+            "image": "010928215705.dkr.ecr.ap-south-1.amazonaws.com/pipeline:latest",
             "cpu": 1536,
             "memory": 1536,
             "memoryReservation": 1536,
@@ -45,9 +45,6 @@
     "networkMode": "bridge",
     "volumes": [],
     "placementConstraints": [],
-    "compatibilities": [
-        "EC2"
-    ],
     "requiresCompatibilities": [
         "EC2"
     ],

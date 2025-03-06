@@ -35,7 +35,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_PROD }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
@@ -46,9 +46,9 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ./task-definition.json  
-          container-name: ${{ secrets.CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+          task-definition: ./task-definition-prod.json  
+          container-name: ${{ secrets.CONTAINER_NAME_PROD }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_PROD }}:${{ github.sha }}
           environment-variables: |
             PORT=${{ vars.PORT }}
 
